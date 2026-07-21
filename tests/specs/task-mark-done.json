@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Mark Done",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Update task status to completed"
+            }
+          }
+        ],
+        "send": {
+          "callback": "task:mark_done"
+        }
+      }
+    ]
+  }
+]
