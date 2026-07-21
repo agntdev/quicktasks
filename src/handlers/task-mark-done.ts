@@ -1,17 +1,35 @@
 import { Composer } from "grammy";
+import type { Ctx } from "../bot.js";
+import { getStorage } from "../bot.js";
+import { inlineButton, inlineKeyboard } from "../toolkit/index.js";
+import { getTask, updateTask } from "../storage.js";
 
-// SCAFFOLD — generated from the bot blueprint BEFORE the agent runs.
-// Keep a LIVE registration (.command / .callbackQuery / …) so this feature is
-// never an empty stub. Replace the reply body with real logic + copy; if you
-// change the user-facing text, update tests/specs to match EXACTLY.
-// Do NOT rewrite src/bot.ts — buildBot() already auto-loads this module.
-// Menu: wire this into /start via registerMainMenuItem({ label: "Mark Done", data: "task:mark_done" }) if the toolkit exposes it.
+const composer = new Composer<Ctx>();
 
-const composer = new Composer();
-
-composer.callbackQuery("task:mark_done", async (ctx) => {
+// ─── Mark task as done ───────────────────────────────────────────────────
+// Callback format: task:mark_done:<taskId>
+composer.callbackQuery(/^task:mark_done:(.+)$/, async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("Update task status to completed");
+  const taskId = ctx.match?.[1];
+  if (!taskId) {
+    await ctx.reply("Couldn't identify the task. Try again.");
+    return;
+  }
+
+  const storage = getStorage();
+  const task = await getTask(storage, taskId);
+  if (!task) {
+    await ctx.reply("That task no longer exists.");
+    return;
+  }
+
+  await updateTask(storage, taskId, { status: "done" });
+
+  await ctx.reply(`✅ Done: ${task.title}`, {
+    reply_markup: inlineKeyboard([
+      [inlineButton("⬅️ Back to menu", "menu:main")],
+    ]),
+  });
 });
 
 export default composer;

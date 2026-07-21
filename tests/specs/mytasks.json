@@ -1,19 +1,34 @@
 [
   {
-    "name": "/mytasks",
+    "name": "/mytasks shows empty state when no tasks",
     "steps": [
       {
+        "send": { "text": "/mytasks" },
         "expect": [
           {
             "method": "sendMessage",
             "payload": {
-              "text": "List all tasks assigned to the user"
+              "text": "No tasks assigned to you yet. Tap 📋 New task to create one."
             }
           }
-        ],
-        "send": {
-          "text": "/mytasks"
-        }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "My tasks menu button shows empty state",
+    "steps": [
+      {
+        "send": { "callback": "mytasks:list" },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "No tasks assigned to you yet. Tap 📋 New task to create one."
+            }
+          }
+        ]
       }
     ]
   }

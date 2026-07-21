@@ -1,12 +1,34 @@
 import { Composer } from "grammy";
 import { createBot, type BotContext } from "./toolkit/index.js";
+import { resolveSessionStorage } from "./toolkit/session/redis.js";
 import type { StorageAdapter } from "grammy";
+
+// ─── Domain storage (shared across handlers) ─────────────────────────────
+// Handlers import this to read/write durable domain data (tasks, users, etc.).
+// Initialized by buildBot() — handlers MUST NOT access before buildBot runs.
+let _domainStorage: StorageAdapter<Record<string, unknown>> | null = null;
+
+/** Get the domain storage adapter. Only safe to call after buildBot(). */
+export function getStorage(): StorageAdapter<Record<string, unknown>> {
+  if (!_domainStorage) throw new Error("Storage not initialized — call buildBot() first");
+  return _domainStorage;
+}
 
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
 // persistent storage (see AGENTS.md).
 export interface Session {
-  // example: step?: "awaiting_amount";
+  /** Current wizard step (null = idle, no active flow). */
+  wizard_step: string | null;
+  /** Draft task data collected during the creation wizard. */
+  draft?: {
+    title?: string;
+    description?: string;
+    assignee_id?: number;
+    assignee_name?: string;
+    due_date?: string;
+    project_tag?: string;
+  };
 }
 
 export type Ctx = BotContext<Session>;
@@ -41,8 +63,13 @@ export interface BuildBotOptions {
  * build-time manifest because Workers has no filesystem.
  */
 export async function buildBot(token: string, opts: BuildBotOptions = {}) {
+  // Initialize domain storage for durable data (tasks, users, etc.)
+  _domainStorage = resolveSessionStorage<Record<string, unknown>>(
+    undefined, // no explicit adapter — use auto-detect (Redis or in-memory)
+  );
+
   const bot = createBot<Session>(token, {
-    initial: () => ({}),
+    initial: () => ({ wizard_step: null }),
     storage: opts.storage,
   });
 
