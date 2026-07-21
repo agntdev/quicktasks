@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Assign to me",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Claim task ownership"
+            }
+          }
+        ],
+        "send": {
+          "callback": "task:assign_self"
+        }
+      }
+    ]
+  }
+]
