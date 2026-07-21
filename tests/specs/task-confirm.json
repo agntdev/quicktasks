@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Task creation confirmation",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Finalize task creation with all required fields"
+            }
+          }
+        ],
+        "send": {
+          "callback": "task:confirm"
+        }
+      }
+    ]
+  }
+]
