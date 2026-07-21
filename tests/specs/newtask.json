@@ -1,19 +1,200 @@
 [
   {
-    "name": "/newtask",
+    "name": "/newtask starts the task creation wizard",
     "steps": [
       {
+        "send": { "text": "/newtask" },
         "expect": [
           {
             "method": "sendMessage",
             "payload": {
-              "text": "Start task creation wizard with optional quick-create syntax"
+              "text": "What's the task title?"
             }
           }
-        ],
-        "send": {
-          "text": "/newtask"
-        }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "New task menu button starts the wizard",
+    "steps": [
+      {
+        "send": { "callback": "task:create" },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What's the task title?"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Full task creation flow: title → description → confirm → create",
+    "steps": [
+      {
+        "send": { "text": "/newtask" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What's the task title?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "Review PR #42" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Got it. Add a description? (or type /skip to skip)"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "Check code quality and tests" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "📋 New task:\n\nTitle: Review PR #42\nDescription: Check code quality and tests\n\nCreate this task?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "callback": "task:confirm" },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "✅ Task created: Review PR #42"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Task creation with skip description",
+    "steps": [
+      {
+        "send": { "text": "/newtask" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What's the task title?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "Deploy to staging" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Got it. Add a description? (or type /skip to skip)"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "/skip" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "📋 New task:\n\nTitle: Deploy to staging\n\nCreate this task?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "callback": "task:confirm" },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "✅ Task created: Deploy to staging"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Cancel task creation discards the draft",
+    "steps": [
+      {
+        "send": { "text": "/newtask" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What's the task title?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "Something" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Got it. Add a description? (or type /skip to skip)"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "callback": "task:create_cancel" },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Task discarded. Tap /start to begin again."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Title too short shows error",
+    "steps": [
+      {
+        "send": { "text": "/newtask" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "What's the task title?"
+            }
+          }
+        ]
+      },
+      {
+        "send": { "text": "x" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Title needs at least 2 characters — try again."
+            }
+          }
+        ]
       }
     ]
   }

@@ -1,19 +1,18 @@
 [
   {
-    "name": "Task creation confirmation",
+    "name": "Task creation confirmation with no draft shows error",
     "steps": [
       {
+        "send": { "callback": "task:confirm" },
         "expect": [
+          { "method": "answerCallbackQuery" },
           {
             "method": "sendMessage",
             "payload": {
-              "text": "Finalize task creation with all required fields"
+              "text": "No task in progress. Tap 📋 New task to start."
             }
           }
-        ],
-        "send": {
-          "callback": "task:confirm"
-        }
+        ]
       }
     ]
   }

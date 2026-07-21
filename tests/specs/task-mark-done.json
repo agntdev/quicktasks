@@ -1,19 +1,18 @@
 [
   {
-    "name": "Mark Done",
+    "name": "Mark Done shows error for missing task",
     "steps": [
       {
+        "send": { "callback": "task:mark_done:nonexistent" },
         "expect": [
+          { "method": "answerCallbackQuery" },
           {
             "method": "sendMessage",
             "payload": {
-              "text": "Update task status to completed"
+              "text": "That task no longer exists."
             }
           }
-        ],
-        "send": {
-          "callback": "task:mark_done"
-        }
+        ]
       }
     ]
   }
